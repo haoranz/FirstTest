@@ -1,0 +1,681 @@
+23.NTP时间同步
+	ntpdate -u 202.108.6.95
+	
+22.Crontab -e
+	基本格式 :
+	*　　*　　*　　*　　*　　command
+	分　时　日　月　周　命令
+	第1列表示分钟1～59 每分钟用*或者 */1表示
+	第2列表示小时1～23（0表示0点）
+	第3列表示日期1～31
+	第4列表示月份1～12
+	第5列标识号星期0～6（0表示星期天）
+	第6列要运行的命令
+
+	crontab文件的一些例子：
+	30 21 * * * /usr/local/etc/rc.d/lighttpd restart
+	上面的例子表示每晚的21:30重启apache.
+	45 4 1,10,22 * * /usr/local/etc/rc.d/lighttpd restart
+	上面的例子表示每月1、10、22日的4 : 45重启apache.
+	10 1 * * 6,0 /usr/local/etc/rc.d/lighttpd restart
+	上面的例子表示每周六、周日的1 : 10重启apache.
+	0,30 18-23 * * * /usr/local/etc/rc.d/lighttpd restart
+	上面的例子表示在每天18 : 00至23 : 00之间每隔30分钟重启apache
+	0 23 * * 6 /usr/local/etc/rc.d/lighttpd restart
+	上面的例子表示每星期六的11 : 00 pm重启apache。
+	* */1 * * * /usr/local/etc/rc.d/lighttpd restart
+	每一小时重启apache
+
+21.Apache AB 性能测试
+	ab.exe -n 1 -c 1 http://172.17.153.38/index.html
+	-n 总次数
+	-c 并发
+
+20.Linux开机挂载
+	vi /etc/fstab
+	# <file system> <mount point> <type> <options> <dump> <pass>
+	/dev/hda5 /home/new ext3 default 0 1
+	
+	第一列可以是实际分区名，也可以是实际分区的卷标（Lable）。
+	第二列是挂载点。挂载点必须为当前已经存在的目录，为了兼容起见，最好在创建需要挂载的目标目录后，将其权限设置为777，以开放所有权限。
+	第三列为此分区的文件系统类型。与格式化时保持一致，可以用auto。
+	第四列是挂载的选项，用于设置挂载的参数。
+		常见参数如下：
+		auto: 系统自动挂载，fstab默认就是这个选项
+		defaults: rw, suid, dev, exec, auto, nouser, and async.
+		noauto 开机不自动挂载
+		nouser 只有超级用户可以挂载
+		ro 按只读权限挂载
+		rw 按可读可写权限挂载
+		user 任何用户都可以挂载
+		请注意光驱和软驱只有在装有介质时才可以进行挂载，因此它是noauto
+	第五列是dump备份设置。
+		当其值设置为1时，将允许dump备份程序备份；设置为0时，忽略备份操作；
+	第六列是fsck磁盘检查设置。
+		其值是一个顺序。当其值为0时，永远不检查；而 / 根目录分区永远都为1。其它分区从2开始，数字越小越先检查，如果两个分区的数字相同，则同时检查。
+	当修改完此文件并保存后，重启服务器生效。
+
+19.Linux 抓取流量
+	tcpdump -i eth0 host 127.0.0.1 port 80 -w ./target.cap
+	
+18.CentOS安装RabbitMQ(可离线)
+(1)先安装Erlang
+	rpm -Uvh http://www.rabbitmq.com/releases/erlang/erlang-18.1-1.el7.centos.x86_64.rpm
+(2)安装rabbitmq-server 
+	rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.5.6/rabbitmq-server-3.5.6-1.noarch.rpm
+	rpm -qa|grep rabbitmq #查看是否安装成功
+(3)rabbit-server运行命令
+	#安装管理插件 	rabbitmq-plugins enable rabbitmq_management 
+	#开启 	service rabbitmq-server start  	
+	#关闭 	service rabbitmq-server stop
+	#查看状态 	rabbitmqctl status
+	#浏览器访问 	http://ip:15672/
+(4)用户管理	
+	#新建用户 	rabbitmqctl  add_user  <username>  <password>
+	#管理权限 	rabbitmqctl  set_user_tags  <username>administrator
+	#列出用户 	rabbitmqctl list_users
+	#删除用户	rabbitmqctl delete_user <username>
+	#更改密码 	rabbitmqctl change_password <username> <newpassword>
+
+17.Windows命令行查看文件的MD5
+	certutil -hashfile D:\1.exe MD5
+	certutil -hashfile D:\1.exe SHA1
+	certutil -hashfile D:\1.exe SHA256
+
+16.Win10禁用某个更新
+	(1)下载Windows Update PowerShell Module（https://gallery.technet.microsof ... d-9de2-88dff796b0bc）附件
+	解压PSWindowsUpdate目录到
+	%WINDIR%\System32\WindowsPowerShell\v1.0\Modules
+	(2)小娜搜索Windows Powershell右键以管理员身份运行
+	首先临时禁止Execution Policy（执行策略）
+		Set-ExecutionPolicy Unrestricted –Force
+	再导入模块
+		Import-Module PSWindowsUpdate
+	恢复ExecutionPolicy（执行策略）
+	Set-ExecutionPolicy RemoteSigned –Force
+	(3)运行以下命令来获得所有可用的windows更新的列表
+	（注意先把已装驱动卸载windows更新里才检查得到）
+	Get-WUList
+	稍微等待一会就会出来
+	ComputerName Status KB          Size Title
+	------------ ------ --          ---- -----
+	WIN-T9E87... ------             2 MB Microsoft driver update for Microsoft Shared Fax Driver
+	WIN-T9E87... D-----           291 MB NVIDIA driver update for NVIDIA GeForce GT 740M
+	WIN-T9E87... ------ KB3056819  12 MB Microsoft Silverlight (KB3056819)
+	WIN-T9E87... ------            31 KB Lenovo - LCD, Other hardware - LCD 1366x768
+	WIN-T9E87... ------             1 MB Lenovo - Other hardware - Lenovo PM Device
+	(4)隐藏指定更新，比如我要隐藏上面的NVIDIA显卡驱动更新，输入以下命令，注意引号里最后有个通配符星号
+	Hide-WUUpdate -Title "NVIDIA driver*"
+	复制代码
+	会显示
+	ComputerName Status KB          Size Title
+	------------ ------ --          ---- -----
+	WIN-T9E87... D--H--           291 MB NVIDIA driver update for NVIDIA GeForce GT 740M
+	H代表已经隐藏，不会再自动更新。
+	(5)进入设置的windows更新里，检查下更新，显卡驱动更新不见了，大功告成~
+	P.S.  如果要恢复自动更新，就是在隐藏更新命令后加入参数 -HideStatus:$false
+	Hide-WUUpdate -Title "NVIDIA driver*" -HideStatus:$false
+	P.S.2 预览版本更新后，更新可能会重新出现，需要重新隐藏一次
+
+15.解决Win10无法被Win10远程桌面登录
+	自从Windows 8.1 及其之后，RDP 客户端进行了更改，强制使用NLA加强安全性。所以在Windows 7上仍然可以连接。	这里有两个变通办法，您可以则其一使用：
+	(1)在com-123456机器上，打开如下注册表路径：
+		HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\Winstations\RDP-tcp
+	找到 "SecurityLayer"项， 将其值更改为 "0"。
+	(2)在RDP的客户端（这里应该是您指的另外一台 Windows 10), 将RDP文件保存到桌面。以Notepad打开，添加一行字符串：
+		enablecredsspsupport:i:0
+
+14.Python 格式化时间
+datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S');
+
+13.Linux CentOS 挂载ISO为本地Yum源
+(1)单镜像
+  mkdir /media/UPEL
+	mount -t iso9660 -o loop /home/UPELISO/upel-7.2-rc1-everything-1702.iso /media/UPEL
+	cd /etc/yum.repos.d/
+	# Back up the System Repo Files.
+	rename .repo .repo.bak *.repo
+	# Create the Local Repo Files.
+		vi UPEL-Localsource.repo
+			# The Content:
+			[UPEL-Localsource]
+			name=UPEL
+			baseurl=file:///media/UPEL
+			enabled=1
+			gpgcheck=0
+	yum makecache
+	yum list
+	yum -y install gcc
+(2)双镜像
+	使用CentOS DVD1 和DVD2做本地yum源
+	CentOS6以上版本一般都会提供一个DVD1和一个DVD2镜像，使用DVD1即可安装使用CentOS了，DVD2中存放了一些额外的软件包，本文介绍如何制作和使用本地yum仓库
+	合并 CentOS 6 的两个DVD镜像
+	1、相关目录：
+	/mnt/dvd1和/mnt/dvd2 用于挂载 Centos 镜像
+	/mnt/dvd3 合并后的镜像文件
+	/mnt/iso ISO储存
+	mkdir -p /mnt/dvd1 /mnt/dvd2 /mnt/dvd3 /mnt/iso
+	2、上传 Centos 镜像到服务器，挂载 Centos 镜像文件
+	mount -o loop /mnt/iso/CentOS-6.5-x86_64-bin-DVD1.iso /mnt/dvd1
+	mount -o loop /mnt/iso/CentOS-6.5-x86_64-bin-DVD2.iso /mnt/dvd2
+	3、拷贝文件
+	首先, 拷贝第一张DVD中的所有文件到 /mnt/dvd3 目录下，然后, 只拷贝第二张 DVD 中 Packages 目录下的所有RPM文件到 /mnt/dvd3/Packages 目录下
+	cp -av /mnt/dvd1 /mnt/dvd3
+	mv /mnt/dvd3/dvd1/* /mnt/dvd3/
+	rm -rf /mnt/dvd3/dvd1/
+	cp -v /mnt/dvd2/Packages/*.rpm /mnt/dvd3/Packages/
+	4、合并TRANS.TBL
+	将DVD2中TRANS.TBL的信息追加到DVD1中TRANS.TBL后面, 并排序保存
+	cat /mnt/dvd2/Packages/TRANS.TBL >> /mnt/dvd3/Packages/TRANS.TBL
+	mv /mnt/dvd3/Packages/{TRANS.TBL,TRANS.TBL.BAK}
+	sort /mnt/dvd3/Packages/TRANS.TBL.BAK > /mnt/dvd3/Packages/TRANS.TBL
+	rm -rf /mnt/dvd3/Packages/TRANS.TBL.BAK
+	dvd3已经是合并后的文件了，可以用作本地源和做成ISO使用。
+	5、备份YUM配置文件
+	cd /etc/yum.repos.d
+	rename .repo .repo.bak *.repo
+	6、生成新的YUM配置文件
+	vi /etc/yum.repos.d/CentOS-Media.repo
+	[c6-media]
+	name=CentOS-\$releasever - Media
+	baseurl=file:///mnt/dvd3
+	gpgcheck=0
+	enabled=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+	7、更新YUM源
+	yum clean all
+	yum upgrade
+
+12.Linux后台运行python程序
+	nohup python -u test.py > out.log 2>&1 &
+
+11.MySQL表中自增ID从1开始
+	truncate table 表名
+
+10.Python 3.6 Mysql
+	pip install pymysql
+
+9.Centos 7 配置静态IP
+(1)ip addr 查看网卡状态
+(2)vi /etc/sysconfig/network-script/ifcfg-ens32
+	TYPE=Ethernet
+	BOOTPROTO=static
+	DEFROUTE=yes
+	PEERDNS=yes
+	PEERROUTES=yes
+	IPV4_FAILURE_FATAL=no
+	IPV6INIT=yes
+	IPV6_AUTOCONF=yes
+	IPV6_DEFROUTE=yes
+	IPV6_PEERDNS=yes
+	IPV6_PEERROUTES=yes
+	IPV6_FAILURE_FATAL=no
+	NAME=ens32
+	UUID=f7e120cb-def2-47c0-b548-b453308dad62
+	DEVICE=ens32
+	ONBOOT=yes
+	IPADDR="172.18.71.151"
+	PREFIX="24"
+	GATEWAY="172.18.71.1"
+	DNS1="172.17.249.41"
+(3)systemctl restart network
+
+8.Centos 7 防火墙设置
+(1)启动停止
+	systemctl start firewalld.service		#开启firewall
+	systemctl stop firewalld.service		#停止firewall
+	systemctl status firewalld.service		#查看firewall状态
+	firewall-cmd --reload					#重启防火墙	
+(2)开机自启
+	systemctl disable firewalld.service		#禁止firewall开机启动
+	systemctl enable firewalld.service		#禁止firewall开机启动
+(3)开启端口
+	firewall-cmd --zone=public --add-port=80/tcp --permanent
+		命令含义：
+		--zone #作用域
+		--add-port=80/tcp #添加端口，格式为：端口/通讯协议
+		--permanent #永久生效，没有此参数重启后失效
+(4)常用命令介绍
+	firewall-cmd --list-all	##查看所有规则
+	firewall-cmd --state		##查看防火墙状态，是否是running
+	firewall-cmd --reload		##重新载入配置，比如添加规则之后，需要执行此命令
+	firewall-cmd --get-zones		##列出支持的zone
+	firewall-cmd --get-services		##列出支持的服务，在列表中的服务是放行的
+	firewall-cmd --query-service ftp 		##查看ftp服务是否支持，返回yes或者no
+	firewall-cmd --add-service=ftp		##临时开放ftp服务
+	firewall-cmd --add-service=ftp --permanent		##永久开放ftp服务
+	firewall-cmd --remove-service=ftp --permanent		##永久移除ftp服务
+	firewall-cmd --add-port=80/tcp --permanent		##永久添加80端口 
+	iptables -L -n		##查看规则，这个命令是和iptables的相同的
+	man firewall-cmd		##查看帮助
+	更多命令，使用  firewall-cmd --help 查看帮助文件
+
+7.配置管理网、测试网VPN
+(1)管理网
+	PPTP:172.18.70.200 
+	lfz/unionpay.com1
+	属性-安全-选择"质询握手身份验证协议"
+	属性-网络-IPV4-属性-高级-取消"在远程网络上使用默认网关"
+
+(2)测试网
+	L2TP:172.17.153.48
+	cisco/cisco
+	预共享秘钥：cisco123
+	属性-安全-选择"质询握手身份验证协议"
+	属性-网络-IPV4-属性-高级-取消"在远程网络上使用默认网关"
+
+6.Cmder ls 中文乱码
+	按下Win+Alt+p打开设置
+	在Environment里添加set LANG=zh_CN.UTF-8
+	重启Cmder
+
+5.删除安装Git后，右键中的Git快捷方式
+	HKEY_CLASSES_ROOT==>Directory==>Background==>shell
+	删除git_gui和git_shell
+
+4.Linux 服务器上线注意
+(1) 添加非root用户，并赋予sudo权限
+	groupadd ccdetect
+	useradd -g ccdetect ccdetect
+	passwd ccdetect
+	vi /etc/sudoers
+	"ADD"
+	ccdetect        ALL=(ALL)       ALL
+(2)	关闭root远程登陆权限
+	vi /etc/ssh/sshd_config
+	PermitRootLogin yes	==>	PermitRootLogin no
+	service sshd restart
+
+3.Linux 硬盘格式化
+(1)	fdisk -l 查看硬盘信息sda、sdb为不同的硬盘，sda1、sda2为一块硬盘的不同分区
+(2)	fdisk /dev/sda 按照提示给硬盘格式化分区
+(3)	mkfs -t ext4 /dev/sda1
+(4)	mkswap /dev/sda1 创建交换分区
+	swapon /dev/sda1 激活交换分区
+	swapoff /dev/sda1 关闭交换分区
+
+2.Apache ab 压力测试
+/usr/bin/ab -n 100 -c 100 http://192.168.4.51/ci/index.PHP/home/login/index
+-n : 请求次数
+-c :并发数，即同时多少人访问
+
+1.PowerShell
+文件中查找字符串
+Select-String -Path .\*.txt -Pattern "123"
+
+======================================================
+Linux||Linux||Linux||Linux||Linux||Linux||Linux||Linux
+======================================================
+
+
+1.# 表示权限用户(如:root),$ 表示普通用户
+开机提示:Login:输入用户名
+password:输入口令 用户是系统注册用户成功登陆后，可以进入相应的用户环境.
+退出当前shell,输入:exit
+
+2.useradd netseek 添加一个netseek用户
+passwd netseek 给netseek这个用户设置密码.
+(/etc/passwd /etc/group)
+userdel netseek 删除账号
+userdel -r netseek 删除账号连同自家目录.
+[更详细的操作请参阅man page,和账号管理篇]
+
+3.查看命令
+ls -l 显示文件列表
+ls -al -a 显示所有档案及目录 (ls内定将档案名或目录名称开头为"."的视为隐藏
+档，不会列出)
+ls -al |grep '^d' 显示目录
+ls -al |grep '^[^d]' 在一个目录中查询不包含目录的所有文件
+ls -sh (man ls 查看man帮助.)
+linux几种文件类型:
+d 表示此文件是一个目录
+- 表示此文件是一个普通文件
+b 表示此文件是一个特殊的块设备I/O文件
+c 表示此文件是一个特殊的字符设备I/O文件
+l 表示此文件是一个连接文件。在其文件名称后紧跟与它连接的文件路径及名称
+file 命令通过探测文件内容判断文件类型
+
+4.建立文件和目录
+touch 1.txt
+cat > 2.txt (用定向符创建文件，填写内容后，按ctrl+d保存内容)
+mkdir mywork 建立mywork这个目录
+
+5.拷贝文件或目录
+cp filename1 filename2
+cp -r dir1 dir2 复制目录
+cp -rf 参数f是删除已经存在的目标文件而不提示
+cp -i 参数i和f相反，在覆盖目标文件之前将给出提示要求用户确认，回答y时目标文件将
+被覆盖，是交互式拷贝.
+
+6.删除文件和目录(删除文件或目录都可以用rm搞定)
+rm 1.c //将 1.c这个文件删除
+rm -rf (强制删除文件或目录,删除时不提示.)
+
+7.移走目录或者改文件名
+mv [opitons] 源文件或目录 目标文件或目录
+[options]主要参数
+-i:交互方式操作，如果mv操作将导致对已存在的目标文件的覆盖，此时系统询问是否重
+写，要求用户回答“y”或“n”，
+这样可以避免误覆盖文件.
+-f:禁止交互操作。 mv操作要覆盖某个已有的目标文件时不给任何指示，指定此参数后i
+参数将不再起作用。
+mv hello ../ 将hello目录或者文件移动上一级.
+
+8.alias 别名
+alias dir='ls -l' 输入dir，其实就相当于执行了ls -l
+
+9.权限的控制(rwx 421)
+chmod +x hello.sh 赋于可执行权限.
+(详细介绍一下权限的控制)
+chmod 命令 权限修改 用法： chmod 一位 8 进制数 filename (rwx 421)
+eg: chmod u+x filenmame 只想给自己运行，别人只能读
+chown netseek.netseek mydir 改变用户属组
+u：表示文件所有者
+g：表示同组用户
+o：表示其它用户
+a：表示所有用户
+opt则是代表操作，可以为：
++：添加某个权限
+-：取消某个权限
+=：赋予给定的权限，并取消原有的权限
+而mode则代表权限：
+r：可读 4
+w：可写 2
+x：可执行 1
+
+10.pwd 显示当前目录完整路径和改变目录
+cd netseek 进入netseek这个目录
+cd 退出当前目录
+cd ../ 进入上一级目录.
+cd - 返回上一次目录
+cd ~ 返回主目录
+
+11. cat,more,less 命令
+将某个文件的内容显示出来，两个命令不同的是:cat 把文件内容一直打印出来，而more
+则分展显示.
+less 可以上下翻滚查看内容.
+cat > 1.txt 可以填写或者复制内容,按ctrl+d保存
+cat 1.c
+more 1.c
+head -n filename 显示第N行的内容
+tail -n filename 显示后N行的内容
+tail -n 20 /var/log/message 显示最新的 20 行日志
+
+12.设置linux时间和日期
+date 命令("date MMDDhhmmYYYY.ss")
+2006 年 7 月 24 日 12:37 ,30 秒
+date 072412372006.30
+date -s 20:30:30 #设置系统时间为 20: 30:30
+date -s 2006-7-24 #设置系统时期为 2006-7-24
+clock -r #对系统Bios中读取时间参数
+clock -w #将系统时间(如由date设置的时间)写入Bios
+
+13.查看找文件
+几种介绍:
+find 路径 -name 文件名
+find /etc -name named.conf
+locate 通过文件名搜索文件的工具(要先通过updatedb建立索引数据库)
+localte named.conf
+whereis 是寻找二进制文件，同时也会找到其帮助文件
+which 和where 相似，只是我们所设置的环境变量中设置好的路径中寻找；比如；
+
+14.查杀进程
+ps aux
+ps -ef |grep
+kill -9
+看看哪个进程占用的内存最大
+ps -aux|sort +5n
+将程序放在前后台执行
+cp file1 file2 &
+&与ctrl+z 你可以使用&或ctrl+z来将命令放在后台执行.
+fg 是将放在后台执行的程序再放回前台.
+jobs
+
+15.dd命令备份
+dd if="input_file" of="out_file" bs="block_size" count="number"
+参数:
+if:就是input file可以是设备
+of:就是output file也可以是设备
+bs:规划的一个block的大小，如果没有设定时，预设是 512bytes
+count:多少个bs的意思.
+dd if=/etc/password of=/tmp/passwd.bak 备份
+
+16.mount 加载一个硬件设备
+用法:mount [参数] 要加载的设备 载入点
+eg: mount /dev/cdrom
+cd /mnt/cdrom //进入光盘目录
+u盘:
+mkdir /mnt/usb；（注：创建挂载目录）
+mount /mnt/sda1 /mnt/usb； (注：挂载U盘)
+现在就可以使用U盘了，在/mnt/usb目录下的内容就是U盘里的内容了；
+使用完后，用以下命令卸载U盘即可。
+umount /mnt/usb
+mount 列出系统所有的分区
+mount -t iso9660 /dev/cdrom /mnt/cdrom 挂载光盘
+mount -t vfat /dev/fd0 /mnt/floppy 挂载软盘
+mount -t vfat -o iocharset=utf8,umask=000 /dev/hda2 /mnt/hda2 挂载
+fat32 分区
+mount -t ntfs -o nls=utf8,umask=000 /dev/hda3 /mnt/hda3 挂载ntfs
+分区
+Linux-NTFS Project: http://linux-ntfs.sourceforge.net/
+umount /mnt/hda3 缷载
+注:挂载设备前，请先fdisk -l 看一下.
+
+17.su在不退出登陆的情况下，切换到另一个身份
+用法: su -l 用户名(如果用户名缺省,则切换到root状态)
+eg:su -l netseek (切换到netseek这个用户，将提示输入密码),加上-表示切换到用
+户的环境变量.
+sudo 利用他可以执行root执行的权限
+
+18.whoami,id,w,lastlog,users,groups
+w 查看用户登陆信息
+who 查看当前登陆用户
+last 最近一个月用户登陆情况
+lastlog 检查某特定用户上次登录的时间，并格式化输出上次登录日志/var/log/lastlog
+的内容
+whoami 确认自己身份.
+id 打印出自己的UID以及GID.(UID:用户身份唯一标识.GID:用户组身份唯一标识.
+每一个用户只能有一个唯一的UID和GID.)
+users
+groups 用户所归属的用户组查询；
+finger -l netseek root
+finger -s 或者直接finger
+可以让使用者查询一些其他使用者的资料
+eg: finger //查看所用用户的使用资料
+finger root //查看root的资料
+
+19.用户用过的命令和执行历史执行的命令
+history 显示用户过去命用的命令
+!!执行最近一次的命令
+
+20.uname 查看linux系统信息
+参数:-a 所有信息 -r 版本号 -n 主机名
+
+21.建立软连接
+ln [-sf] source target
+ln souce-file hard-link
+ln -sf source-file soft-link
+s表示软连接,f表示，若有同名文件在，则将它覆盖过去.
+注：硬链接不能为目录创建，只有文件才能创建硬链接。
+
+22.查看目录
+du -sh 目录或者文件
+du -m du系统默认输出是以KB,以参数-m表示以MB显示.
+cat /etc/fstab 查看分区列表
+fdisk -l
+df -h
+df -ah
+
+23.查看linux系统占用的资源(top,free,uptime)
+top 查看后台程序，监控系统性能
+top -d 2 每两秒列新一次
+top -d -2 -p3690 查看某个PID
+top -b -n 2 >/tmp/top.txt 将top的信息进行 2 次，然后将结果输出到/tmp/top.txt
+free -m 查看系统内存使用情况
+uptime 显示目前系统开机时间(查看开机多久，多少人登陆，过去 1,5,15 分钟系统的
+负载)
+
+24.文件比软件:
+cmp cmp（ “compare”的缩写）命令用来简要指出两个文件是否存在差异，它的使用
+权限是所有用户
+diff diff命令用于两个文件之间的比较，并指出两者的不同，它的使用权限是所有用户
+
+25.远程操作与文件传输
+ssh user@remote.machine
+scp user@remote.machine:/remote/path /local/path
+scp /local/path user@remote.machine:/remote/path
+
+26.编译c/c++文件
+gcc
+gcc -v 查看GCC版本
+gcc -o test test.c 2>errfile 编译test.c时若有错误信息，则将错误信息重定向到
+errfile
+
+27.chattr +i filename 禁止删除， chattr -i filename 取消禁止
+lsattr 查看隐藏档属性
+
+28.自动化执行
+at 执行一次
+crontab 定时循环执行程序
+crontab 介绍
+1 以root登录
+2 # crontab -e
+3 加入一行
+1 */12 * * * /usr/sbin/ntpdate pool.ntp.org
+分钟 （ 0-59）
+小時 （ 0-23）
+日 期 （ 1-31）
+月份 （ 1-12）
+星期 （ 0-6） //0 代表星期天
+
+29.关机和重启:
+shutwond [-t 秒数] [-rkhncff] 时间 [警告信息]
+-t 秒数:设置在切换至不同的runlevel之前，警告和删除两信号之彰间的延迟时间(秒)
+-k 发出警告信息，但不是真的要shutdown
+-r shutdown这后重新开机
+-h shutdown这后开机
+-n 不经过init,由shutdown命令本身来做开机工作(不建议你使用)
+-f 重新开机时，跳过fsck指令，不检查文件系统.
+-F 重新开机时，强迫做fsck检查.
+-c 将已经正在shutdown的动作取消
+shutdown -h now 立刻关机，其中now相当于时间为 0,halt,poweroff也可以关机,或
+者直接init 0
+shutdown -h 20:30 系统将在今晚的 8:30 关机
+shutdown -h +10 系统再过十分钟后自动关机.
+shutdown -t3 -r now 立刻重新开机，但在警告和删除processes这间，
+shutdown -k now 'Hey! Go away! now...' 发出警告信息，但没有真的关机.
+reboot:
+shutdown -r now 几乎与reboot相同，不关建议用reboot执行如下:
+shutdown -r +30 'The system wiil reboot'
+shutdown -r +10 'Hey!Go away!' 10 分钟后系统重启.
+#sync; sync; sync; reboot 注： sync将数据同步写入硬盘
+halt命令相当于shutdown -h now ，表示立刻关机。
+reboot命令相当于shutown -r now ，表示立刻重起。
+
+30.如何改变启动模式运行级别
+vi /etc/inittab
+将 5 改成 3，启动后就可以变成字符模式。
+startx 或者 init 5 就可以进入图形化界面.
+runlevel 显示当前运行级别
+如何切换至单用户模式
+利用telinit或init(其实telinit只是一个synbol link to init)
+telinit 1 或者 init S 即可，当然telinit S也是可以的.
+如何使ctrl+alt+del 三键失效的方法
+#vi /etc/inittab
+在ca::ctrlaltdel:/sbin/shutdonw -t3 -r now之前加上注释#
+然后执行#telinit q ,参数q是要telinit重新检查一次/etc/inittab
+
+31.TAB 巧用tab键，当你不知道文件或命令的全名是请连续按两下tab键.
+
+32.clear 清屏
+
+33.dmesg |more 显示开机信息(查看系统启动时硬件信息)
+
+34.改变程序执行的优秀级
+nice 设置优先权 nice -n -5 vi & 用root给一个nice值为-5,用于执行vi
+renice 调整已存在优先权
+
+35.模块相关的命令
+lsmod 显示已经载入系统的模块
+depmod 分析可载入系统的相依性
+modinfo 显示kernel模块的信息
+insmod 载入模块
+modprobe 自动处理可载入模块
+rmmod 删除模块
+
+36.chkconfig --list 显示各种服务的状态，利用chkconfig可以轻松管理init脚本.
+
+37.linux的几种解压缩命令
+compress aaa 将aaa文件压缩成为aaa.Z
+compress -d aaa.z 将aaa.z文件压缩成aaa
+gzip aaa 压缩命令
+gzip -d aaa.gz 解压命令
+bzip2 -z filename 压缩,同上加-d参数解压
+bzcat filename.bz 查看压缩文件内容
+tar czvf aaa.tar.gz aaa 将目录aaa压缩成aaa.tar.gz
+tar -N '2007/03/01' -zcvf home.tar.gz /home 在/home当中,比 2007/03/01 新
+的文件才备份.
+tar --exclude /home/cao -zxvf myfile.tar.gz /home/* /etc 要备份/home,/etc，
+但不要/home/cao
+cd /tmp; tar -cvf -/etc | tar -xvf - 将/etc/打包后直接解开/tmp底下，而不产生文
+件.
+tar zxvf aaa.tar.gz 解压缩命令.
+tar jxvf aaa.tar.bz2 解压命令
+tar zxvf aaa.tar.gz -C /var/www 将aaa.tar.gz解压到/var/www目录下
+cpio -covB > [file|device] 备份
+cpio -icduv < [file|device] 还原
+
+38.网络命令
+ifconfig 显示或设置网络设备,可以查看当前ip,类似于windows里的ipconfig
+service network restart(/etc/rc.d/init.d/network restart) 重启网卡
+ifdown eth0 关闭网卡
+ifup eth0 开启网卡
+route -n 查看路由表
+route add -net 192.168.20.1 netmask 255.255.255.0 dev eth0
+netstat 查看网络连接情况
+netstat -i 显示网卡运行情况
+netstat -r 查看主机的路由列表
+traceroute
+hostname 显示主机名
+hostname -i 显示当前主机名的IP.
+
+39.系统集成管理菜单.
+setup 系统服务管理命令
+ntsysv 设置系统服务
+
+40.fdisk /mbr 删除GRUB
+
+41.数据库启动
+启动mysql：
+service mysqld start(/etc/rc.d/init.d/mysqld start)
+mysql -uroot -p 输入密码即可操作mysql数据库.
+启动Oracle
+su - oracle
+$lsnrctl stop
+$lsnrctl start
+sqlplus /nolog
+conn /as sysdba(connected)
+startup
+
+42.安装软件包
+rpm包安装:
+rpm -ivh xxx.rpm 安装rpm包
+rpm -qa --last | less 根据安装日期显示已经安装的包
+rpm -qa |grep mysql -i 查询系统是否安装mysql包(-i,忽略大小写)
+rpm -e 删除安装的软件包
+rpm -e mysql* --nodpes 强制删除相关的软件包
+rpm --test 测试安装
+rpm -qi 查询mysql套件的说明资料
+rpm -qpl xxx.rpm 查看rpm包内含的内容.
+rpm -qc[d] 设定档与说明档
+rpm -Uvh 升级安装
+rpmbuild --bb SPECS/xxx.spec 重新装将xxx.spec编译成rpm包.
+rpmbuild --rebuild packagename.src.rpm 重新把.src.rpm编译成rpm包.
+源码编译安装(经典)
+./configure 检查系统信息(./configure --help | more 帮助信息，可以看到相
+关的参数设定)
+make clean 清除之前留下的文件
+make 编译
+make install 安装
+注:源码包安装，一般先将文件解压，安装过程大致上面几步，具体说明一般见解压后目录
+里的(INSTALL,READEME说明.)
