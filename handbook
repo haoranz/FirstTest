@@ -1,3 +1,13 @@
+24.Linux扩容磁盘
+	(1)新建磁盘，重启机器
+	(2)格式化磁盘
+		fdisk -l	
+		fdisk /dev/sdb	#n enter*3 w
+		mkfs.xfs /dev/sdb1
+	(3)挂载分区
+		mkdir /workspace
+		echo "/dev/sdb1    /workspace    xfs    defaults    0 0" >> /etc/fstab
+
 23.NTP时间同步
 	ntpdate -u 202.108.6.95
 	
