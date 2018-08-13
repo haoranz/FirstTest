@@ -1,0 +1,8 @@
+1.mpv安装
+
+    (1) 安装Homebrew
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    (2) 安装MPV
+        brew install --HEAD --with-bluray-support --with-libdvdread --with-little-cms2 --with-lua --with-bundle mpv
+        brew linkapps mpv
+        将编译好的.app文件链接到你的默认应用程序文件夹中。
